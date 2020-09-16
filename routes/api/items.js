@@ -16,6 +16,16 @@ Create an item : POST /api/items/:groupId : private
 Update item info : PUT /api/items/ : private 
 Delete item account : DELETE /api/items/ : private 
 
+*** All errors and alerts are sent: 
+{ 
+  alerts: [
+    {
+      msg: 'alert/error message',
+      alertType: 'fail'
+    },
+  ]
+}
+
 */
 
 // Create a new item

@@ -22,17 +22,88 @@ Login user : POST /api/users/login : public
 Update user info : PUT /api/users/ : private 
 Delete user account : DELETE /api/users/ : private 
 
+*** All errors and alerts are sent: 
+{ 
+  alerts: [
+    {
+      msg: 'alert/error message',
+      alertType: 'fail'
+    },
+  ]
+}
+
 */
 
 // Register a new user
 // POST /api/users/register
 // public
-router.post('/register', (req, res) => {
-  // input validation
-  // check if user exists by email
-  // create new user and encrypt password using bcryptjs
-  // return success alert
-});
+router.post(
+  '/register',
+  [
+    check('name', 'Name is required.').trim().escape().not().isEmpty(),
+    check('email', 'Valid email is required.').isEmail(),
+    check('password', 'Password must be 6 characters minimum').isLength({
+      min: 6,
+    }),
+  ],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { name, email, password } = req.body;
+
+    try {
+      // check if user exists by email
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        // return alert that user exists
+        return res.status(400).json({
+          alerts: [
+            {
+              msg: 'Email is already in use. Please log in.',
+              alertType: 'fail',
+            },
+          ],
+        });
+      }
+
+      // create new user and encrypt password using bcryptjs
+      let user = new User({
+        name,
+        email,
+        password,
+      });
+      // encrypt password
+      user.password = await bcrypt.hash(password, 10);
+      // save user
+      await user.save();
+
+      // return success alert
+      return res.json({
+        alerts: [
+          {
+            msg: `Welcome to TodoApp, ${user.name}. Please log in.`,
+            alertType: 'success',
+          },
+        ],
+      });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Login a user
 // POST /api/users/login

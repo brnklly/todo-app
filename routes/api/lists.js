@@ -16,6 +16,16 @@ Get user's lists : GET /api/lists/ : private
 Update list info : PUT /api/lists/ : private 
 Delete list account : DELETE /api/lists/ : private 
 
+*** All errors and alerts are sent: 
+{ 
+  alerts: [
+    {
+      msg: 'alert/error message',
+      alertType: 'fail'
+    },
+  ]
+}
+
 */
 
 // Create a new list

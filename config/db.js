@@ -8,6 +8,7 @@ module.exports = connectDB = async () => {
       {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useCreateIndex: true,
       },
       () => console.log('MongoDB connected')
     );
