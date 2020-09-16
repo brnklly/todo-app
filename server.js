@@ -11,7 +11,7 @@ connectDB();
 app.use(express.json({ extended: false }));
 
 // Routes
-app.get('/', (req, res) => res.send('Test route'));
+app.use('api/users/', require('./routes/api/users'));
 
 // Port setup
 const PORT = 5000; // offers flexibility for services like heroku
