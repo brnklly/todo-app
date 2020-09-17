@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
+// Models
+const User = require('../../models/User');
+const List = require('../../models/List');
+const Item = require('../../models/Item');
 
 /* 
 
@@ -31,51 +35,186 @@ Delete list account : DELETE /api/lists/ : private
 // Create a new list
 // POST /api/lists/
 // private
-router.post('/', auth, (req, res) => {
-  // input validation
-  // create new list
-  // save list
-  // return list and success alert
-});
+router.post(
+  '/',
+  [auth, check('name', 'List name is required.').trim().not().isEmpty()],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { name } = req.body;
+
+    try {
+      // find current user
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(401).json({
+          alerts: [
+            {
+              msg: 'Unauthorized. Please log in to create a list.',
+              alertType: 'fail',
+            },
+          ],
+        });
+      }
+      // create new list
+      const list = new List({ name, user });
+      // save list
+      await list.save();
+      // return list and success alert
+      res.json({ list });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Get a list with items
 // GET /api/lists/:id
 // private
-router.get('/:id', auth, (req, res) => {
-  // find list with :id and req.user.id
-  // find all items assoc with list
-  // add items to list as array
-  // return list
+router.get('/:id', auth, async (req, res) => {
+  try {
+    // find list with :id and req.user.id
+    let list = await List.findOne({ _id: req.params.id, user: req.user.id });
+    // if list does not exist, return error alert
+    if (!list) {
+      return res.status(400).json({
+        alerts: [{ msg: 'The list does not exist.', alertType: 'fail' }],
+      });
+    }
+    // find all items assoc with list
+    const items = await Item.find({ list });
+    // add items to list as array
+    list = {
+      ...list._doc,
+      items,
+    };
+    // return list
+    res.json({ list });
+  } catch (error) {
+    console.log(error.message);
+    // send server failure alert to client
+    res.status(500).json({
+      alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+    });
+  }
 });
 
 // Get all lists of current user
 // GET /api/lists/
 // private
-router.get('/', auth, (req, res) => {
-  // find all lists with :id and req.user.id
-  // return lists
+router.get('/', auth, async (req, res) => {
+  try {
+    // find all lists with :id and req.user.id
+    const lists = await List.find({ user: req.user.id });
+    // return lists
+    res.json({ lists });
+  } catch (error) {
+    console.log(error.message);
+    // send server failure alert to client
+    res.status(500).json({
+      alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+    });
+  }
 });
 
-// Update list info
+// Update list name
 // PUT /api/lists/:id
 // private
-router.put('/:id', auth, (req, res) => {
-  // input validation
-  // find list with req.params.id
-  // update list fields
-  // save list
-  // return success alert
-});
+router.put(
+  '/:id',
+  [
+    auth,
+    check('name', 'List name is required').trim().not().isEmpty(),
+    check(
+      'moveCompleted',
+      'Stop trying to hack this site, please.'
+    ).isBoolean(),
+    check('prioritize', 'Stop trying to hack this site, please.').isBoolean(),
+  ],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { name, moveCompleted, prioritize } = req.body;
+
+    try {
+      // find list with req.params.id
+      let list = await List.findOne({ _id: req.params.id, user: req.user.id });
+      // if list does not exist, return error alert
+      if (!list) {
+        return res.status(400).json({
+          alerts: [{ msg: 'The list does not exist.', alertType: 'fail' }],
+        });
+      }
+
+      // update list fields
+      list.name = name;
+      list.moveCompleted = moveCompleted;
+      list.prioritize = prioritize;
+      // save list
+      await list.save();
+      // return success alert
+      res.json({
+        list,
+        alerts: [{ msg: 'List updated.', alertType: 'success' }],
+      });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Delete list
 // DELETE /api/lists/:id
 // private
-router.delete('/:id', auth, (req, res) => {
-  // input validation
-  // find list with req.params.id
-  // delete list
-  // delete all items with list.id
-  // return success alert
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    // find list with req.params.id
+    const list = await List.findOne({ _id: req.params.id, user: req.user.id });
+    // if list does not exist, return error alert
+    if (!list) {
+      return res.status(400).json({
+        alerts: [{ msg: 'The list does not exist.', alertType: 'fail' }],
+      });
+    }
+    // delete list
+    await list.remove();
+    // delete all items with list.id
+    await Item.deleteMany({ list });
+    // return success alert
+    res.json({ alerts: [{ msg: 'List deleted.', alertType: 'success' }] });
+  } catch (error) {
+    console.log(error.message);
+    // send server failure alert to client
+    res.status(500).json({
+      alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+    });
+  }
 });
 
 module.exports = router;

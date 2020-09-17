@@ -3,6 +3,7 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
 // Models
+const List = require('../../models/List');
 const Item = require('../../models/Item');
 
 /* 
@@ -29,33 +30,145 @@ Delete item account : DELETE /api/items/ : private
 */
 
 // Create a new item
-// POST /api/items/:groupId
+// POST /api/items/list/:listId
 // private
-router.post('/:groupId', auth, (req, res) => {
-  // input validation
-  // create new item with groupId
-  // save item
-  // return item and success alert
-});
+router.post(
+  '/list/:listId',
+  [
+    auth,
+    check('name', 'Item name is required.').trim().not().isEmpty(),
+    check('priority', 'Please select a priority level.').isIn(['1', '2', '3']),
+  ],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { name, priority } = req.body;
+
+    try {
+      // find list
+      const list = await List.findOne({
+        _id: req.params.listId,
+        user: req.user.id,
+      });
+      // if list does not exist, return error alert
+      if (!list) {
+        return res.status(400).json({
+          alerts: [{ msg: 'The list does not exist.', alertType: 'fail' }],
+        });
+      }
+      // create new item with listId and user
+      const item = new Item({
+        name,
+        priority,
+        list,
+        user: req.user.id,
+      });
+      // save item
+      await item.save();
+      // return item and success alert
+      res.json({
+        item,
+        alerts: [{ msg: 'Item created.', alertType: 'success' }],
+      });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Update item info
 // PUT /api/items/:id
 // private
-router.put('/:id', auth, (req, res) => {
-  // input validation
-  // find item with req.params.id
-  // update item fields
-  // save item
-  // return success alert
-});
+router.put(
+  '/:id',
+  [
+    auth,
+    check('name', 'Item name is required').trim().not().isEmpty(),
+    check('completed', 'Stop trying to hack this site, please.').isBoolean(),
+    check('priority', 'Please select a priority level.').isIn(['1', '2', '3']),
+  ],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { name, priority, completed } = req.body;
+
+    try {
+      // find item with req.params.id
+      let item = await Item.findOne({ _id: req.params.id, user: req.user.id });
+      // if item does not exist, return error alert
+      if (!item) {
+        return res.status(400).json({
+          alerts: [{ msg: 'The item does not exist.', alertType: 'fail' }],
+        });
+      }
+      // update item fields
+      item.name = name;
+      item.completed = completed;
+      item.priority = priority;
+      // save item
+      await item.save();
+      // return success alert
+      // return success alert
+      res.json({
+        item,
+        alerts: [{ msg: 'Item updated.', alertType: 'success' }],
+      });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Delete item
 // DELETE /api/items/:id
 // private
-router.delete('/:id', auth, (req, res) => {
-  // find item with req.params.id
-  // delete item
-  // return success alert
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    // find item with req.params.id
+    const item = await Item.findOne({ _id: req.params.id, user: req.user.id });
+    // if item does not exist, return error alert
+    if (!item) {
+      return res.status(400).json({
+        alerts: [{ msg: 'The item does not exist.', alertType: 'fail' }],
+      });
+    }
+    // delete item
+    await item.remove();
+    // return success alert
+    res.json({ alerts: [{ msg: 'Item deleted.', alertType: 'success' }] });
+  } catch (error) {
+    console.log(error.message);
+    // send server failure alert to client
+    res.status(500).json({
+      alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+    });
+  }
 });
 
 module.exports = router;
