@@ -180,15 +180,76 @@ router.post(
 // Update user info (requires password)
 // PUT /api/users/
 // private
-router.put('/', auth, (req, res) => {
-  // input validation
-  // find user with req.user.id
-  // compare passwords using bcryptjs
-  // if email changed, check for existing email
-  // update user fields
-  // save user
-  // return success alert
-});
+router.put(
+  '/',
+  [
+    auth,
+    check('name', 'Name is required').trim().escape().not().isEmpty(),
+    check('email', 'Valid email is required').isEmail(),
+    check('password', 'Please enter your password').not().isEmpty(),
+  ],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { name, email, password } = req.body;
+
+    try {
+      // find user with req.user.id
+      let user = await User.findById(req.user.id);
+      // compare passwords using bcryptjs
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        // return invalid credentials alert (password is incorrect)
+        return res.status(400).json({
+          alerts: [
+            {
+              msg: 'Invalid password. Please enter your password.',
+              alertType: 'fail',
+            },
+          ],
+        });
+      }
+      // if email changed, check for existing email
+      if (user.email !== email) {
+        const existingUser = await User.find({
+          email,
+          _id: { $ne: user.id },
+        });
+        // if email exists, return error alert
+        if (existingUser.length > 0) {
+          return res.status(400).json({
+            alerts: [{ msg: 'Email already in use.', alertType: 'fail' }],
+          });
+        }
+        // update user email
+        user.email = email;
+      }
+      // update user name
+      user.name = name;
+      // save user
+      await user.save();
+      // return success alert
+      res.json({
+        alerts: [{ msg: 'User updated.', alertType: 'success' }],
+      });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Delete user account (requires password)
 // DELETE /api/users/
