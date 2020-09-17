@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const config = require('config');
 const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
@@ -108,12 +109,73 @@ router.post(
 // Login a user
 // POST /api/users/login
 // public
-router.post('/login', (req, res) => {
-  // input validation
-  // find user from email
-  // compare passwords using bcryptjs
-  // return jwt
-});
+router.post(
+  '/login',
+  [
+    check('email', 'Email is required.').isEmail(),
+    check('password', 'Password is required').not().isEmpty(),
+  ],
+  async (req, res) => {
+    // input validation
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // add an alertType of 'fail' to each error for frontend
+      errors = errors.array();
+      errors.forEach((error) => (error.alertType = 'fail'));
+      // return error alert with form errors
+      return res.status(400).json({ alerts: errors });
+    }
+
+    // deconstruct req body
+    const { email, password } = req.body;
+
+    try {
+      // find user from email
+      const user = await User.findOne({ email });
+      if (!user) {
+        // return invalid credentials alert (user does not exist)
+        return res.status(400).json({
+          alerts: [
+            {
+              msg: 'Invalid credentials. Enter a valid email and password.',
+              alertType: 'fail',
+            },
+          ],
+        });
+      }
+      // compare passwords using bcryptjs
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        // return invalid credentials alert (password is incorrect)
+        return res.status(400).json({
+          alerts: [
+            {
+              msg: 'Invalid credentials. Enter a valid email and password.',
+              alertType: 'fail',
+            },
+          ],
+        });
+      }
+
+      // create and return jwt with user id in payload
+      const payload = {
+        user: {
+          id: user._id,
+        },
+      };
+      jwt.sign(payload, config.get('secret'), (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      });
+    } catch (error) {
+      console.log(error.message);
+      // send server failure alert to client
+      res.status(500).json({
+        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+      });
+    }
+  }
+);
 
 // Update user info (requires password)
 // PUT /api/users/
