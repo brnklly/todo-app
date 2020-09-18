@@ -5,8 +5,10 @@ import { connect } from 'react-redux';
 const Alert = (props) => {
   return (
     <div className='alerts'>
-      {props.alerts.map((alert) => (
-        <div className='alert'>{alert.msg}</div>
+      {props.alerts.map((alert, id) => (
+        <div className='alert' key={id}>
+          {alert.msg}
+        </div>
       ))}
     </div>
   );
