@@ -8,7 +8,7 @@ import Register from './components/Register';
 import Alert from './components/Alert';
 import Login from './components/Login';
 import setAuthToken from './utils/setAuthToken';
-import { loadUser } from './actions/user';
+import { loadUser } from './actions/auth';
 
 if (localStorage.token) {
   // if localstorage contains a token, set token to headers

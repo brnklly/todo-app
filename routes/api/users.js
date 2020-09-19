@@ -183,10 +183,15 @@ router.post(
           id: user._id,
         },
       };
-      jwt.sign(payload, config.get('secret'), (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      });
+      jwt.sign(
+        payload,
+        config.get('secret'),
+        { expiresIn: 3600 },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
     } catch (error) {
       console.log(error.message);
       // send server failure alert to client

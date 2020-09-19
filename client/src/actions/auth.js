@@ -9,6 +9,7 @@ Register user - axios call to POST /api/users/register
 Login user - axios call to POST /api/users/login
 Update user - axios call to PUT /api/users/
 Delete user - axios call to DELETE /api/users/
+Logout user - call logout action 
 
 */
 
@@ -86,4 +87,13 @@ export const login = ({ email, password }) => async (dispatch) => {
       });
     }
   }
+};
+
+export const logout = () => async (dispatch) => {
+  // Remove token from header
+  setAuthToken();
+  // Remove token (etc) from state
+  dispatch({
+    type: LOGOUT_USER,
+  });
 };

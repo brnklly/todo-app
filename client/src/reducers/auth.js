@@ -1,6 +1,6 @@
 import { LOGIN_USER, LOGOUT_USER, USER_LOADED } from '../actions/types';
 
-// User reducer
+// Auth reducer
 
 const initialState = {
   token: localStorage.getItem('token'),
@@ -22,6 +22,7 @@ export default function (state = initialState, action) {
       localStorage.setItem('token', payload.token);
       return {
         ...state,
+        ...payload,
         isAuthenticated: true,
       };
     case LOGOUT_USER:
