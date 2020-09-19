@@ -17,6 +17,8 @@ User routes
 
 All routes associated with users and user CRUD operations
 
+Get current logged in user : GET /api/users/
+
 Register user : POST /api/users/register : public 
 Login user : POST /api/users/login : public 
 
@@ -34,6 +36,24 @@ Delete user account : DELETE /api/users/ : private
 }
 
 */
+
+// Get current logged in user
+// GET /api/users/
+// private
+router.get('/', auth, async (req, res) => {
+  try {
+    // find user by id in token header
+    const user = await User.findById(req.user.id).select('-password');
+    // return all but password
+    res.json(user);
+  } catch (error) {
+    console.log(error.message);
+    // send server failure alert to client
+    res.status(500).json({
+      alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+    });
+  }
+});
 
 // Register a new user
 // POST /api/users/register
