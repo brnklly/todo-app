@@ -31,7 +31,7 @@ const ItemSchema = new mongoose.Schema({
     ref: 'lists',
   },
   priority: {
-    type: Number,
+    type: String,
     required: true,
   },
   completed: {

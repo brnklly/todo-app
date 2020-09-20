@@ -8,13 +8,13 @@ const Header = ({ auth: { isAuthenticated }, logout }) => {
   const authLinks = (
     <ul id='nav'>
       <li className='nav-item'>
-        <Link to='/' onClick={logout}>
-          <img alt='' src='./img/icons8-sign-out-48.png' />
+        <Link to='#!' onClick={logout}>
+          <img alt='' src='/img/icons8-sign-out-48.png' />
           Logout
         </Link>
       </li>
-      <li className='nav-item category active'>
-        <Link to='/lists'>My Lists</Link>
+      <li className='nav-item category'>
+        <Link to='/my-lists'>My Lists</Link>
       </li>
       <li className='nav-item category'>
         <Link to='/account'>Account Settings</Link>
@@ -26,13 +26,13 @@ const Header = ({ auth: { isAuthenticated }, logout }) => {
     <ul id='nav'>
       <li className='nav-item'>
         <Link to='/register'>
-          <img alt='' src='./img/icons8-add-user-male-48.png' />
+          <img alt='' src='/img/icons8-add-user-male-48.png' />
           Register
         </Link>
       </li>
       <li className='nav-item'>
         <Link to='/login'>
-          <img alt='' src='./img/icons8-login-48.png' />
+          <img alt='' src='/img/icons8-login-48.png' />
           Login
         </Link>
       </li>
@@ -58,6 +58,7 @@ const Header = ({ auth: { isAuthenticated }, logout }) => {
 
 Header.propTypes = {
   logout: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({

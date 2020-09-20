@@ -37,7 +37,10 @@ Delete list account : DELETE /api/lists/ : private
 // private
 router.post(
   '/',
-  [auth, check('name', 'List name is required.').trim().not().isEmpty()],
+  [
+    auth,
+    check('name', 'List name is required.').trim().escape().not().isEmpty(),
+  ],
   async (req, res) => {
     // input validation
     let errors = validationResult(req);
@@ -70,7 +73,7 @@ router.post(
       // save list
       await list.save();
       // return list and success alert
-      res.json({ list });
+      res.json(list);
     } catch (error) {
       console.log(error.message);
       // send server failure alert to client
@@ -102,7 +105,7 @@ router.get('/:id', auth, async (req, res) => {
       items,
     };
     // return list
-    res.json({ list });
+    res.json(list);
   } catch (error) {
     console.log(error.message);
     // send server failure alert to client
@@ -120,7 +123,7 @@ router.get('/', auth, async (req, res) => {
     // find all lists with :id and req.user.id
     const lists = await List.find({ user: req.user.id });
     // return lists
-    res.json({ lists });
+    res.json(lists);
   } catch (error) {
     console.log(error.message);
     // send server failure alert to client
@@ -174,11 +177,17 @@ router.put(
       list.prioritize = prioritize;
       // save list
       await list.save();
+
+      // find all items assoc with list
+      const items = await Item.find({ list });
+      // add items to list as array
+      list = {
+        ...list._doc,
+        items,
+      };
+
       // return success alert
-      res.json({
-        list,
-        alerts: [{ msg: 'List updated.', alertType: 'success' }],
-      });
+      res.json(list);
     } catch (error) {
       console.log(error.message);
       // send server failure alert to client
@@ -207,7 +216,9 @@ router.delete('/:id', auth, async (req, res) => {
     // delete all items with list.id
     await Item.deleteMany({ list });
     // return success alert
-    res.json({ alerts: [{ msg: 'List deleted.', alertType: 'success' }] });
+    res.json({
+      alerts: [{ msg: 'List deleted.', alertType: 'success', expires: true }],
+    });
   } catch (error) {
     console.log(error.message);
     // send server failure alert to client

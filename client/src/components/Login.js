@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -11,6 +11,11 @@ const Login = (props) => {
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    const { isAuthenticated, loading } = props.auth;
+    isAuthenticated && !loading && props.history.push('/my-lists');
+  }, [props.auth]);
 
   const { email, password } = formData;
 
@@ -66,6 +71,11 @@ const Login = (props) => {
 Login.propTypes = {
   setAlerts: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
 };
 
-export default connect(null, { setAlerts, login })(Login);
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps, { setAlerts, login })(Login);

@@ -37,7 +37,11 @@ router.post(
   [
     auth,
     check('name', 'Item name is required.').trim().not().isEmpty(),
-    check('priority', 'Please select a priority level.').isIn(['1', '2', '3']),
+    check('priority', 'Please select a priority level.').isIn([
+      'high',
+      'med',
+      'low',
+    ]),
   ],
   async (req, res) => {
     // input validation
@@ -75,10 +79,7 @@ router.post(
       // save item
       await item.save();
       // return item and success alert
-      res.json({
-        item,
-        alerts: [{ msg: 'Item created.', alertType: 'success' }],
-      });
+      res.json(item);
     } catch (error) {
       console.log(error.message);
       // send server failure alert to client
@@ -98,7 +99,11 @@ router.put(
     auth,
     check('name', 'Item name is required').trim().not().isEmpty(),
     check('completed', 'Stop trying to hack this site, please.').isBoolean(),
-    check('priority', 'Please select a priority level.').isIn(['1', '2', '3']),
+    check('priority', 'Please select a priority level.').isIn([
+      'high',
+      'med',
+      'low',
+    ]),
   ],
   async (req, res) => {
     // input validation
@@ -131,10 +136,7 @@ router.put(
       await item.save();
       // return success alert
       // return success alert
-      res.json({
-        item,
-        alerts: [{ msg: 'Item updated.', alertType: 'success' }],
-      });
+      res.json(item);
     } catch (error) {
       console.log(error.message);
       // send server failure alert to client

@@ -152,16 +152,13 @@ main {
         margin-left: 1rem;
 
         &.list-header-button {
-          position: relative;
-
           img {
-            position: absolute;
             width: 1.25rem;
             padding-bottom: 0.15rem;
           }
 
           span {
-            padding-left: 1.5rem;
+            padding-left: 0.25rem;
             padding-top: 0.15rem;
           }
         }
@@ -169,6 +166,7 @@ main {
         img {
           width: 1.5rem;
           margin-right: 0.25rem;
+          padding-bottom: 0.25rem;
         }
       }
     }
@@ -183,7 +181,11 @@ main {
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 1rem 0;
+
+      input {
+        font-size: 1rem;
+        padding: 0.5rem 0.25rem 0.25rem;
+      }
 
       .list-name,
       .item-name {
@@ -198,8 +200,38 @@ main {
         }
       }
 
+      .buttons {
+        display: flex;
+
+        .edit {
+          opacity: 0.7;
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+
+        .save {
+          font-weight: bold;
+          margin-right: 0.5rem;
+
+          &:hover {
+            color: var(--main-color);
+          }
+        }
+      }
+
+      .save,
+      .remove,
+      .cancel {
+        span {
+          padding-left: 0.5rem;
+        }
+      }
+
       .remove {
         position: relative;
+        margin-right: 1rem;
 
         &:hover {
           img.hovered {
@@ -210,6 +242,7 @@ main {
         img {
           position: absolute;
           width: 1.5rem;
+          padding-bottom: 0.25rem;
 
           &.hovered {
             opacity: 0;
@@ -220,7 +253,9 @@ main {
   }
 
   #lists {
-    .list-item {
+    .list {
+      padding: 1rem 0;
+
       .list-name {
         cursor: pointer;
       }
@@ -239,17 +274,20 @@ main {
 
         .completed {
           margin-left: 1rem;
-          position: relative;
 
           img {
-            position: absolute;
+            padding: 0;
           }
         }
 
         .item-name {
           display: flex;
           align-items: center;
-          margin-left: 3rem;
+          margin: 0 0 0 2rem;
+
+          &.completed {
+            text-decoration: line-through;
+          }
 
           &:hover {
             color: black;
@@ -257,8 +295,7 @@ main {
         }
 
         input {
-          font-size: 1rem;
-          padding: 0.5rem 0.25rem 0.25rem;
+          margin-left: 2rem;
         }
 
         .priorities {
@@ -290,6 +327,11 @@ main {
             &.low {
               background: darkgreen;
             }
+
+            &.completed {
+              background: lightgrey;
+              margin-left: 0;
+            }
           }
         }
 
@@ -305,20 +347,17 @@ main {
           }
 
           .save {
-            position: relative;
             font-weight: bold;
 
             &:hover {
               color: var(--main-color);
             }
+          }
+        }
 
-            img {
-              position: absolute;
-            }
-
-            span {
-              padding-left: 2rem;
-            }
+        &.add-item {
+          .completed {
+            opacity: 0;
           }
         }
       }

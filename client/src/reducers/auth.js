@@ -5,6 +5,7 @@ import { LOGIN_USER, LOGOUT_USER, USER_LOADED } from '../actions/types';
 const initialState = {
   token: localStorage.getItem('token'),
   isAuthenticated: null,
+  loading: true,
   user: null,
 };
 
@@ -16,6 +17,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         isAuthenticated: true,
+        loading: false,
         user: payload,
       };
     case LOGIN_USER:
@@ -24,6 +26,7 @@ export default function (state = initialState, action) {
         ...state,
         ...payload,
         isAuthenticated: true,
+        loading: false,
       };
     case LOGOUT_USER:
       localStorage.removeItem('token');
@@ -31,6 +34,7 @@ export default function (state = initialState, action) {
         ...state,
         token: null,
         isAuthenticated: false,
+        loading: false,
         user: null,
       };
     default:

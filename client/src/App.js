@@ -3,12 +3,15 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './store';
 import './App.scss';
+import setAuthToken from './utils/setAuthToken';
+import { loadUser } from './actions/auth';
 import Header from './components/Header';
 import Register from './components/Register';
 import Alert from './components/Alert';
 import Login from './components/Login';
-import setAuthToken from './utils/setAuthToken';
-import { loadUser } from './actions/auth';
+import Lists from './components/Lists';
+import Items from './components/Items';
+import PrivateRoute from './components/routing/PrivateRoute';
 
 if (localStorage.token) {
   // if localstorage contains a token, set token to headers
@@ -28,8 +31,10 @@ function App() {
           <main>
             <Alert />
             <Switch>
-              <Route path='/register' component={Register} />
-              <Route path='/login' component={Login} />
+              <Route exact path='/register' component={Register} />
+              <Route exact path='/login' component={Login} />
+              <PrivateRoute exact path='/my-lists' component={Lists} />
+              <PrivateRoute exact path='/my-lists/:id' component={Items} />
             </Switch>
           </main>
         </div>

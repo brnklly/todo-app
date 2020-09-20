@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import alertReducer from './alert';
 import authReducer from './auth';
+import listReducer from './list';
 
 /* 
 Root reducer containing: 
@@ -15,4 +16,5 @@ Root reducer containing:
 export default combineReducers({
   alerts: alertReducer,
   auth: authReducer,
+  lists: listReducer,
 });
