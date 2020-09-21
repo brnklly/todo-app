@@ -1,14 +1,13 @@
 import axios from 'axios';
 import setAuthToken from '../utils/setAuthToken';
+import { setAlerts } from './alert';
 import { LOGIN_USER, SET_ALERTS, LOGOUT_USER, USER_LOADED } from './types';
 
 /* 
-User actions 
+Auth actions 
 
 Register user - axios call to POST /api/users/register 
 Login user - axios call to POST /api/users/login
-Update user - axios call to PUT /api/users/
-Delete user - axios call to DELETE /api/users/
 Logout user - call logout action 
 
 */
@@ -78,6 +77,7 @@ export const login = ({ email, password }) => async (dispatch) => {
     });
 
     dispatch(loadUser());
+    dispatch(setAlerts([]));
   } catch (error) {
     const alerts = error.response.data.alerts;
     if (alerts) {
@@ -92,6 +92,7 @@ export const login = ({ email, password }) => async (dispatch) => {
 };
 
 export const logout = () => async (dispatch) => {
+  dispatch(setAlerts([]));
   // Remove token from header
   setAuthToken();
   // Remove token (etc) from state

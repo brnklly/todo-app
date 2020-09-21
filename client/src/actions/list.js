@@ -13,6 +13,7 @@ export const getUserLists = () => async (dispatch) => {
       type: GET_USER_LISTS,
       payload: res.data,
     });
+    dispatch(setAlerts([]));
   } catch (error) {
     const alerts = error.response.data.alerts;
     if (alerts) {
@@ -35,6 +36,7 @@ export const getList = (id) => async (dispatch) => {
       type: GET_LIST,
       payload: res.data,
     });
+    dispatch(setAlerts([]));
   } catch (error) {
     const alerts = error.response.data.alerts;
     if (alerts) {

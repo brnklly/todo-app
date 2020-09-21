@@ -11,6 +11,7 @@ import Alert from './components/Alert';
 import Login from './components/Login';
 import Lists from './components/Lists';
 import Items from './components/Items';
+import Account from './components/Account';
 import PrivateRoute from './components/routing/PrivateRoute';
 
 if (localStorage.token) {
@@ -35,6 +36,7 @@ function App() {
               <Route exact path='/login' component={Login} />
               <PrivateRoute exact path='/my-lists' component={Lists} />
               <PrivateRoute exact path='/my-lists/:id' component={Items} />
+              <PrivateRoute exact path='/account' component={Account} />
             </Switch>
           </main>
         </div>

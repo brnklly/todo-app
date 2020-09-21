@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-// Import redux actions
-import { login } from '../actions/auth';
+import { connect } from 'react-redux';
+import { updateUser } from '../actions/user';
 
-const Login = (props) => {
+const Account = (props) => {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
   });
 
   useEffect(() => {
-    const { isAuthenticated, loading } = props.auth;
-    isAuthenticated && !loading && props.history.push('/my-lists');
-  }, [props.auth]);
+    if (props.auth.user) {
+      const { name, email } = props.auth.user;
+      setFormData({ ...formData, name, email });
+    }
+  }, [props.auth.user]);
 
-  const { email, password } = formData;
+  const { name, email, password } = formData;
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,22 +25,34 @@ const Login = (props) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    // call login action
-    props.login({ email, password });
+    props.updateUser({
+      name,
+      email,
+      password,
+    });
+    setFormData({ ...formData, password: '' });
   };
 
   return (
     <div className='page' id='lists-page'>
       <div className='page-header'>
-        <h1 className='page-title'>Login</h1>
+        <h1 className='page-title'>Account</h1>
       </div>
       <div className='page-content'>
-        <p>
-          Don't have an account? <Link to='/register'>Register</Link>
-        </p>
+        <p>Here, you can edit your account details.</p>
         <form onSubmit={(e) => onSubmit(e)}>
           <div className='row'>
-            <label htmlFor='email'>Email:</label>
+            <label htmlFor='name'>Change Name:</label>
+            <input
+              type='text'
+              name='name'
+              id='name'
+              value={name}
+              onChange={(e) => onChange(e)}
+            />
+          </div>
+          <div className='row'>
+            <label htmlFor='email'>Change Email:</label>
             <input
               type='email'
               name='email'
@@ -59,7 +72,7 @@ const Login = (props) => {
             />
           </div>
           <div className='row'>
-            <input type='submit' value='Log In' />
+            <input type='submit' value='Save Changes' />
           </div>
         </form>
       </div>
@@ -67,8 +80,8 @@ const Login = (props) => {
   );
 };
 
-Login.propTypes = {
-  login: PropTypes.func.isRequired,
+Account.propTypes = {
+  updateUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
 };
 
@@ -76,4 +89,4 @@ const mapStateToProps = (state) => ({
   auth: state.auth,
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { updateUser })(Account);
