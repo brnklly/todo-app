@@ -98,7 +98,20 @@ router.get('/:id', auth, async (req, res) => {
       });
     }
     // find all items assoc with list
-    const items = await Item.find({ list });
+    let items = await Item.find({ list });
+
+    // sort based on priority
+    if (list.prioritize) {
+      const sortOrder = ['low', 'med', 'high'];
+      items = items.sort((a, b) => {
+        return sortOrder.indexOf(b.priority) - sortOrder.indexOf(a.priority);
+      });
+    }
+    if (list.moveCompleted) {
+      // move completed to bottom
+      items = items.sort((a, b) => a.completed - b.completed);
+    }
+
     // add items to list as array
     list = {
       ...list._doc,

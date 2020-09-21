@@ -92,10 +92,7 @@ export const updateList = ({ id, name, moveCompleted, prioritize }) => async (
 
   try {
     const res = await axios.put(`/api/lists/${id}`, body, config);
-    dispatch({
-      type: GET_LIST,
-      payload: res.data,
-    });
+    dispatch(getList(id));
     dispatch(setAlerts([]));
   } catch (error) {
     const alerts = error.response.data.alerts;
