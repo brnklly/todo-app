@@ -91,7 +91,7 @@ export const updateList = ({ id, name, moveCompleted, prioritize }) => async (
   };
 
   try {
-    const res = await axios.put(`/api/lists/${id}`, body, config);
+    await axios.put(`/api/lists/${id}`, body, config);
     dispatch(getList(id));
     dispatch(setAlerts([]));
   } catch (error) {

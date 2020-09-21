@@ -279,66 +279,34 @@ router.put(
 // Delete user account (requires password)
 // DELETE /api/users/
 // private
-router.delete(
-  '/',
-  [auth, check('password', 'Please enter your password.').not().isEmpty()],
-  async (req, res) => {
-    // input validation
-    let errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      // add an alertType of 'fail' to each error for frontend
-      errors = errors.array();
-      errors.forEach((error) => (error.alertType = 'fail'));
-      // return error alert with form errors
-      return res.status(400).json({ alerts: errors });
-    }
-
-    // deconstruct req body
-    const { password } = req.body;
-
-    try {
-      // find user with req.user.id
-      const user = await User.findById(req.user.id);
-      // if user does not exist, return error alert
-      if (!user) {
-        return res.status(400).json({
-          alerts: [{ msg: 'User account does not exist.', alertType: 'fail' }],
-        });
-      }
-      // compare passwords using bcryptjs
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        // return invalid credentials alert (password is incorrect)
-        return res.status(400).json({
-          alerts: [
-            {
-              msg: 'Invalid password. Please enter your password.',
-              alertType: 'fail',
-            },
-          ],
-        });
-      }
-
-      // delete user
-      await user.remove();
-      // delete all lists with user.id
-      await List.deleteMany({ user });
-      // delete all items with user.id
-      await Item.deleteMany({ user });
-      // return success alert
-      res.json({
-        alert: [
-          { msg: 'User account has been deleted.', alertType: 'success' },
-        ],
-      });
-    } catch (error) {
-      console.log(error.message);
-      // send server failure alert to client
-      res.status(500).json({
-        alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+router.delete('/', [auth], async (req, res) => {
+  try {
+    // find user with req.user.id
+    const user = await User.findById(req.user.id);
+    // if user does not exist, return error alert
+    if (!user) {
+      return res.status(400).json({
+        alerts: [{ msg: 'User account does not exist.', alertType: 'fail' }],
       });
     }
+
+    // delete user
+    await user.remove();
+    // delete all lists with user.id
+    await List.deleteMany({ user });
+    // delete all items with user.id
+    await Item.deleteMany({ user });
+    // return success alert
+    res.json({
+      alerts: [{ msg: 'User account has been deleted.', alertType: 'success' }],
+    });
+  } catch (error) {
+    console.log(error.message);
+    // send server failure alert to client
+    res.status(500).json({
+      alerts: [{ msg: 'Server error. Please try again.', alertType: 'fail' }],
+    });
   }
-);
+});
 
 module.exports = router;

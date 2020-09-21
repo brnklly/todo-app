@@ -46,6 +46,13 @@ form {
   }
 }
 
+.delete-account {
+  color: firebrick;
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  cursor: pointer;
+}
+
 .alerts {
   display: flex;
   flex-flow: column;

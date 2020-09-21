@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { updateUser } from '../actions/user';
+import { updateUser, deleteUser } from '../actions/user';
 
 const Account = (props) => {
   const [formData, setFormData] = useState({
@@ -31,6 +31,10 @@ const Account = (props) => {
       password,
     });
     setFormData({ ...formData, password: '' });
+  };
+
+  const onDeleteUser = () => {
+    props.deleteUser({ password });
   };
 
   return (
@@ -75,6 +79,9 @@ const Account = (props) => {
             <input type='submit' value='Save Changes' />
           </div>
         </form>
+        <p className='delete-account' onClick={() => onDeleteUser()}>
+          Delete Account
+        </p>
       </div>
     </div>
   );
@@ -82,6 +89,7 @@ const Account = (props) => {
 
 Account.propTypes = {
   updateUser: PropTypes.func.isRequired,
+  deleteUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
 };
 
@@ -89,4 +97,4 @@ const mapStateToProps = (state) => ({
   auth: state.auth,
 });
 
-export default connect(mapStateToProps, { updateUser })(Account);
+export default connect(mapStateToProps, { updateUser, deleteUser })(Account);
