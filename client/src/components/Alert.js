@@ -6,8 +6,8 @@ const Alert = (props) => {
   return (
     <div className='alerts'>
       {props.alerts.map((alert, id) => (
-        <div className='alert' key={id}>
-          {alert.msg}
+        <div className={`alert ${alert.alertType}`} key={id}>
+          Alert: {alert.msg}
         </div>
       ))}
     </div>

@@ -46,6 +46,28 @@ form {
   }
 }
 
+.alerts {
+  display: flex;
+  flex-flow: column;
+
+  .alert {
+    align-self: flex-start;
+    margin-bottom: 0.5rem;
+    padding: 1.25rem 1rem 1rem;
+    color: #eee;
+    // font-weight: bold;
+    border-radius: 0.25rem;
+
+    &.fail {
+      background: firebrick;
+    }
+
+    &.success {
+      background: green;
+    }
+  }
+}
+
 header {
   position: absolute;
   top: 0;
