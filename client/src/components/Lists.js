@@ -72,7 +72,6 @@ const Lists = (props) => {
                 />
                 <div className='buttons'>
                   <button className='save' onClick={(e) => onSave(e)}>
-                    <img alt='' src='/img/icons8-save-48.png' />
                     <img alt='' src='/img/icons8-save-48-blue.png' />
                     <span>SAVE</span>
                   </button>

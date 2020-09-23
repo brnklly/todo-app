@@ -11,6 +11,7 @@ import Alert from './components/Alert';
 import Login from './components/Login';
 import Lists from './components/Lists';
 import Items from './components/Items';
+import Home from './components/Home';
 import Account from './components/Account';
 import PrivateRoute from './components/routing/PrivateRoute';
 
@@ -32,6 +33,7 @@ function App() {
           <main>
             <Alert />
             <Switch>
+              <Route exact path='/' component={Home} />
               <Route exact path='/register' component={Register} />
               <Route exact path='/login' component={Login} />
               <PrivateRoute exact path='/my-lists' component={Lists} />

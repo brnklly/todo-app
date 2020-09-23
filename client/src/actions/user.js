@@ -42,12 +42,6 @@ export const updateUser = ({ name, email, password }) => async (dispatch) => {
 
 // delete user account
 export const deleteUser = ({ password }) => async (dispatch) => {
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-
   try {
     console.log('before axios');
     const res = await axios.delete('/api/users/', {
